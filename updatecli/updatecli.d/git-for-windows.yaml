@@ -20,12 +20,11 @@ sources:
       owner: git-for-windows
       repository: git
       versionfilter:
-        kind: regex
-        pattern: 'v(\d+\.\d+\.\d+)\.windows\.\d+$'
+        kind: latest
     transformers:
       - trimprefix: "v"
-      - find: '\.windows\.\d+$'
-        replace: ""
+      - replacers:
+          "\.windows\.\d+$": ""
 
 targets:
   windows-git-version:
