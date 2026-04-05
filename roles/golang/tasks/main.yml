@@ -1,0 +1,85 @@
+---
+# Go installation for Linux agents
+
+- name: Check if Go is installed
+  ansible.builtin.command: /usr/local/go/bin/go version
+  register: go_current_version
+  changed_when: false
+  failed_when: false
+  tags:
+    - golang
+
+- name: Set Go install required fact
+  ansible.builtin.set_fact:
+    go_install_required: >-
+      {{ go_current_version.rc != 0 or
+         ('go' + go_version) not in go_current_version.stdout | default('') }}
+  tags:
+    - golang
+
+- name: Remove old Go installation
+  ansible.builtin.file:
+    path: /usr/local/go
+    state: absent
+  when: go_install_required | bool
+  tags:
+    - golang
+
+- name: Download Go {{ go_version }}
+  ansible.builtin.get_url:
+    url: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
+    mode: "0644"
+  when: go_install_required | bool
+  tags:
+    - golang
+
+- name: Extract Go to /usr/local
+  ansible.builtin.unarchive:
+    src: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: /usr/local
+    remote_src: true
+  when: go_install_required | bool
+  tags:
+    - golang
+
+- name: Clean up Go tarball
+  ansible.builtin.file:
+    path: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
+    state: absent
+  when: go_install_required | bool
+  tags:
+    - golang
+
+- name: Create /etc/profile.d/golang.sh
+  ansible.builtin.copy:
+    dest: /etc/profile.d/golang.sh
+    content: |
+      export PATH=$PATH:/usr/local/go/bin
+    mode: "0644"
+    owner: root
+    group: root
+  tags:
+    - golang
+
+- name: Create symlink /usr/bin/go
+  ansible.builtin.file:
+    src: /usr/local/go/bin/go
+    dest: /usr/bin/go
+    state: link
+    force: true
+  tags:
+    - golang
+
+- name: Verify Go installation
+  ansible.builtin.command: /usr/local/go/bin/go version
+  register: go_installed_version
+  changed_when: false
+  tags:
+    - golang
+
+- name: Display Go version
+  ansible.builtin.debug:
+    msg: "{{ go_installed_version.stdout }}"
+  tags:
+    - golang

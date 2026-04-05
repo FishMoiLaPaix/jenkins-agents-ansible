@@ -12,5 +12,9 @@
       tags: [java]
     - role: docker
       tags: [docker]
+    - role: golang
+      tags: [golang]
+    - role: golangci-lint
+      tags: [golangci-lint]
     - role: jenkins-agent
       tags: [jenkins-agent]

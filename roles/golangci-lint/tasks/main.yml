@@ -1,0 +1,33 @@
+---
+# golangci-lint installation for Linux agents
+
+- name: Check if golangci-lint is installed
+  ansible.builtin.command: /usr/local/bin/golangci-lint --version
+  register: golangci_lint_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - golangci-lint
+
+- name: Install golangci-lint via official script
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b /usr/local/bin
+  args:
+    executable: /bin/bash
+  when: golangci_lint_check.rc != 0
+  tags:
+    - golangci-lint
+
+- name: Verify golangci-lint installation
+  ansible.builtin.command: /usr/local/bin/golangci-lint --version
+  register: golangci_lint_version
+  changed_when: false
+  tags:
+    - golangci-lint
+
+- name: Display golangci-lint version
+  ansible.builtin.debug:
+    msg: "{{ golangci_lint_version.stdout }}"
+  tags:
+    - golangci-lint

@@ -82,6 +82,42 @@
       failed_when: java_home_check.rc != 0
       tags: [java, jenkins-agent]
 
+    - name: Check Go version
+      ansible.builtin.command: go version
+      register: go_version
+      changed_when: false
+      failed_when: "'1.22' not in go_version.stdout"
+      tags: [golang]
+
+    - name: Display Go version
+      ansible.builtin.debug:
+        msg: "{{ go_version.stdout }}"
+      tags: [golang]
+
+    - name: Check golangci-lint version
+      ansible.builtin.command: golangci-lint --version
+      register: golangci_lint_version
+      changed_when: false
+      failed_when: golangci_lint_version.rc != 0
+      tags: [golangci-lint]
+
+    - name: Display golangci-lint version
+      ansible.builtin.debug:
+        msg: "{{ golangci_lint_version.stdout }}"
+      tags: [golangci-lint]
+
+    - name: Check python3-venv is available
+      ansible.builtin.command: python3 -m venv --help
+      register: python3_venv_check
+      changed_when: false
+      failed_when: python3_venv_check.rc != 0
+      tags: [python]
+
+    - name: Display python3-venv status
+      ansible.builtin.debug:
+        msg: "python3-venv is available"
+      tags: [python]
+
     - name: Check disk space
       ansible.builtin.command: df -h /
       register: disk_space
@@ -110,6 +146,8 @@
           Agent {{ inventory_hostname }} verification complete:
           Java={{ java_version.stderr_lines[0] }},
           Docker={{ docker_version.stdout }},
+          Go={{ go_version.stdout }},
+          golangci-lint={{ golangci_lint_version.stdout }},
           User={{ agent_user.stdout }}
 
 - name: Verify Windows Jenkins agent
