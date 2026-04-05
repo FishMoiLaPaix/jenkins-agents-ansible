@@ -1,0 +1,20 @@
+---
+skip_list:
+  - var-naming[no-role-prefix]
+  - args[module]
+
+mock_modules:
+  - community.general.alternatives
+  - ansible.windows.win_command
+  - ansible.windows.win_stat
+  - ansible.windows.win_file
+  - chocolatey.chocolatey.win_chocolatey
+
+mock_roles:
+  - nodejs
+
+# Exclude files using modules not available in CI (Windows collections, posix)
+exclude_paths:
+  - playbooks/bootstrap.yml
+  - playbooks/verify.yml
+  - roles/common/tasks/main.yml

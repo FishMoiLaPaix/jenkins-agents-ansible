@@ -11,6 +11,9 @@ jenkins_agent_group: "jenkins-agent"
 jenkins_agent_home: "/home/jenkins-agent"
 jenkins_agent_workspace: "/home/jenkins-agent/workspace"
 
+# Go
+go_version: "1.22.2"
+
 # Docker
 docker_users:
   - "jenkins-agent"

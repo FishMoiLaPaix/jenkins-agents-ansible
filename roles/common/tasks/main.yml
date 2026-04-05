@@ -27,6 +27,35 @@
     - common
     - packages
 
+- name: Detect Python 3 version
+  ansible.builtin.command: python3 --version
+  register: python3_version_output
+  changed_when: false
+  when: ansible_os_family == "Debian"
+  tags:
+    - common
+    - packages
+    - python
+
+- name: Set Python 3 minor version fact
+  ansible.builtin.set_fact:
+    python3_minor: "{{ python3_version_output.stdout | regex_search('Python (3\\.\\d+)', '\\1') }}"
+  when: ansible_os_family == "Debian"
+  tags:
+    - common
+    - packages
+    - python
+
+- name: Install python3-venv for detected version
+  ansible.builtin.apt:
+    name: "python{{ python3_minor }}-venv"
+    state: present
+  when: ansible_os_family == "Debian"
+  tags:
+    - common
+    - packages
+    - python
+
 - name: Set timezone
   ansible.builtin.timezone:
     name: Europe/Paris

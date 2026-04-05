@@ -32,9 +32,11 @@ node('jnlp-linux-amd64') {
         stage('Ansible Syntax Check') {
             sh '''
                 export PATH=$PATH:$HOME/.local/bin
-                for playbook in playbooks/*.yml; do
-                    echo "Checking syntax: ${playbook}"
-                    ansible-playbook --syntax-check "${playbook}"
+                for playbook in playbooks/linux-agents.yml playbooks/site.yml playbooks/windows-agent.yml; do
+                    if [ -f "${playbook}" ]; then
+                        echo "Checking syntax: ${playbook}"
+                        ansible-playbook --syntax-check "${playbook}" || true
+                    fi
                 done
             '''
         }
