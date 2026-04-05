@@ -14,7 +14,7 @@ scms:
 sources:
   python:
     name: "Get latest Python 3.13.x release"
-    kind: githubtag
+    kind: githubrelease
     spec:
       token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       owner: python
