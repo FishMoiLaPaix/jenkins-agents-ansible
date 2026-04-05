@@ -1,0 +1,4 @@
+---
+skip_list:
+  - syntax-check[unknown-module]
+  - var-naming[no-role-prefix]
