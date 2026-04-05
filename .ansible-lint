@@ -1,4 +1,11 @@
 ---
 skip_list:
-  - syntax-check[unknown-module]
   - var-naming[no-role-prefix]
+
+mock_modules:
+  - community.general.alternatives
+  - ansible.windows.win_command
+  - ansible.windows.win_stat
+  - chocolatey.chocolatey.win_chocolatey
+  - ansible.builtin.authorized_key
+  - ansible.builtin.timezone
