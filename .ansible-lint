@@ -1,11 +1,16 @@
 ---
 skip_list:
   - var-naming[no-role-prefix]
+  - args[module]
 
 mock_modules:
   - community.general.alternatives
   - ansible.windows.win_command
   - ansible.windows.win_stat
+  - ansible.windows.win_file
   - chocolatey.chocolatey.win_chocolatey
   - ansible.builtin.authorized_key
   - ansible.builtin.timezone
+
+mock_roles:
+  - nodejs
