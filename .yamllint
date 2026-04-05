@@ -6,3 +6,4 @@ rules:
     max: 160
   truthy:
     allowed-values: ['true', 'false', 'yes', 'no']
+  document-start: disable
