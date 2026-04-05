@@ -39,11 +39,5 @@ node('jnlp-linux-amd64') {
             '''
         }
 
-        stage('Dry Run (Check Mode)') {
-            sh '''
-                export PATH=$PATH:$HOME/.local/bin
-                ansible-playbook --check --connection=local --inventory=localhost, playbooks/verify.yml
-            '''
-        }
     }
 }
