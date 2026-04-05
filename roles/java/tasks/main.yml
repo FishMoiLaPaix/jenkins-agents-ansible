@@ -34,10 +34,9 @@
     - packages
 
 - name: Set default Java to Temurin 21
-  community.general.alternatives:
-    name: java
-    path: "{{ java_home }}/bin/java"
+  ansible.builtin.command: update-alternatives --set java {{ java_home }}/bin/java
   when: ansible_os_family == "Debian"
+  changed_when: true
   failed_when: false
   tags:
     - java

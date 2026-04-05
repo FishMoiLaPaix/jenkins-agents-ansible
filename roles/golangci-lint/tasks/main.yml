@@ -15,6 +15,7 @@
     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b /usr/local/bin
   args:
     executable: /bin/bash
+  changed_when: true
   when: golangci_lint_check.rc != 0
   tags:
     - golangci-lint

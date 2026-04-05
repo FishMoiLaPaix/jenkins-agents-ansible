@@ -3,7 +3,7 @@
 
 - name: Check if Go is installed
   ansible.builtin.command: /usr/local/go/bin/go version
-  register: go_current_version
+  register: golang_current_version
   changed_when: false
   failed_when: false
   tags:
@@ -11,9 +11,9 @@
 
 - name: Set Go install required fact
   ansible.builtin.set_fact:
-    go_install_required: >-
-      {{ go_current_version.rc != 0 or
-         ('go' + go_version) not in go_current_version.stdout | default('') }}
+    golang_install_required: >-
+      {{ golang_current_version.rc != 0 or
+         ('go' + go_version) not in golang_current_version.stdout | default('') }}
   tags:
     - golang
 
@@ -21,7 +21,7 @@
   ansible.builtin.file:
     path: /usr/local/go
     state: absent
-  when: go_install_required | bool
+  when: golang_install_required | bool
   tags:
     - golang
 
@@ -30,7 +30,7 @@
     url: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
     dest: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
     mode: "0644"
-  when: go_install_required | bool
+  when: golang_install_required | bool
   tags:
     - golang
 
@@ -39,7 +39,7 @@
     src: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
     dest: /usr/local
     remote_src: true
-  when: go_install_required | bool
+  when: golang_install_required | bool
   tags:
     - golang
 
@@ -47,7 +47,7 @@
   ansible.builtin.file:
     path: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
     state: absent
-  when: go_install_required | bool
+  when: golang_install_required | bool
   tags:
     - golang
 
@@ -73,13 +73,13 @@
 
 - name: Verify Go installation
   ansible.builtin.command: /usr/local/go/bin/go version
-  register: go_installed_version
+  register: golang_installed_version
   changed_when: false
   tags:
     - golang
 
 - name: Display Go version
   ansible.builtin.debug:
-    msg: "{{ go_installed_version.stdout }}"
+    msg: "{{ golang_installed_version.stdout }}"
   tags:
     - golang
