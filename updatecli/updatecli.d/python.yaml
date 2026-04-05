@@ -1,0 +1,43 @@
+---
+name: "Update Python version"
+
+scms:
+  default:
+    kind: github
+    spec:
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      branch: "{{ .github.branch }}"
+      user: updatecli
+
+sources:
+  python:
+    name: "Get latest Python 3.13.x release"
+    kind: githubtag
+    spec:
+      owner: python
+      repository: cpython
+      versionfilter:
+        kind: semver
+        pattern: "~3.13"
+    transformers:
+      - trimprefix: "v"
+
+targets:
+  windows-python-version:
+    name: "Update Python version in Windows group_vars"
+    kind: yaml
+    scmid: default
+    sourceid: python
+    spec:
+      file: inventory/group_vars/windows.yml
+      key: "$.python_version"
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    spec:
+      title: 'chore: update Python to {{ source "python" }}'
+      labels:
+        - dependencies
