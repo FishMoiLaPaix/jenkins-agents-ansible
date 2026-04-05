@@ -3,6 +3,9 @@ skip_list:
   - var-naming[no-role-prefix]
   - args[module]
 
+warn_list:
+  - syntax-check[unknown-module]
+
 mock_modules:
   - community.general.alternatives
   - ansible.windows.win_command
@@ -14,3 +17,6 @@ mock_modules:
 
 mock_roles:
   - nodejs
+
+exclude_paths:
+  - playbooks/bootstrap.yml
