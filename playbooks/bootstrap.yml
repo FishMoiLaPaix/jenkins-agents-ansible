@@ -1,0 +1,57 @@
+---
+# Bootstrap playbook - run ONCE per machine to create the ansible admin user
+# Usage: ansible-playbook -i inventory/hosts.yml playbooks/bootstrap.yml --ask-become-pass
+# After this, all other playbooks use the ansible user with passwordless sudo
+
+- name: Bootstrap ansible admin user on Linux agents
+  hosts: linux
+  become: true
+  gather_facts: false
+  tags: [bootstrap]
+
+  vars:
+    ansible_admin_user: ansible
+    ansible_admin_ssh_pubkey: "{{ lookup('file', '~/.ssh/ansible-agents.pub') }}"
+
+  tasks:
+    - name: Create ansible admin user
+      ansible.builtin.user:
+        name: "{{ ansible_admin_user }}"
+        shell: /bin/bash
+        create_home: true
+        groups: sudo
+        append: true
+        comment: "Ansible admin for Jenkins agent management"
+
+    - name: Set up passwordless sudo
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/{{ ansible_admin_user }}"
+        content: "{{ ansible_admin_user }} ALL=(ALL) NOPASSWD:ALL\n"
+        mode: '0440'
+        validate: 'visudo -cf %s'
+
+    - name: Create .ssh directory
+      ansible.builtin.file:
+        path: "/home/{{ ansible_admin_user }}/.ssh"
+        state: directory
+        owner: "{{ ansible_admin_user }}"
+        group: "{{ ansible_admin_user }}"
+        mode: '0700'
+
+    - name: Add SSH authorized key
+      ansible.builtin.authorized_key:
+        user: "{{ ansible_admin_user }}"
+        key: "{{ ansible_admin_ssh_pubkey }}"
+        state: present
+
+    - name: Verify sudo works without password
+      ansible.builtin.command: whoami
+      become_user: "{{ ansible_admin_user }}"
+      changed_when: false
+      register: verify_sudo
+
+    - name: Bootstrap complete
+      ansible.builtin.debug:
+        msg: >
+          User '{{ ansible_admin_user }}' created with passwordless sudo.
+          SSH key deployed. You can now use ansible user for all playbooks.

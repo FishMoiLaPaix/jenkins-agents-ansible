@@ -3,7 +3,7 @@
 
 - name: Verify Linux Jenkins agents
   hosts: linux
-  become: true
+  become: false
   gather_facts: true
   tags: [verify]
 
@@ -31,20 +31,16 @@
         msg: "{{ docker_version.stdout }}"
       tags: [docker]
 
-    - name: Check Docker service is running
-      ansible.builtin.systemd:
-        name: docker
-        state: started
-      check_mode: true
+    - name: Check Docker daemon is running
+      ansible.builtin.command: pgrep -x dockerd
       register: docker_service
+      changed_when: false
+      failed_when: docker_service.rc != 0
       tags: [docker]
 
     - name: Verify Docker service status
-      ansible.builtin.assert:
-        that:
-          - docker_service is not changed
-        fail_msg: "Docker service is not running"
-        success_msg: "Docker service is running"
+      ansible.builtin.debug:
+        msg: "Docker daemon is running (pid {{ docker_service.stdout_lines[0] }})"
       tags: [docker]
 
     - name: Check jenkins-agent user exists
@@ -66,22 +62,21 @@
       tags: [jenkins-agent, docker]
 
     - name: Check workspace directory exists
-      ansible.builtin.stat:
-        path: "{{ jenkins_agent_workspace }}"
+      ansible.builtin.command: test -d {{ jenkins_agent_workspace }}
+      become: true
       register: workspace_dir
+      changed_when: false
+      failed_when: workspace_dir.rc != 0
       tags: [jenkins-agent]
 
     - name: Verify workspace directory
-      ansible.builtin.assert:
-        that:
-          - workspace_dir.stat.exists
-          - workspace_dir.stat.isdir
-        fail_msg: "Workspace directory {{ jenkins_agent_workspace }} does not exist"
-        success_msg: "Workspace directory {{ jenkins_agent_workspace }} exists"
+      ansible.builtin.debug:
+        msg: "Workspace directory {{ jenkins_agent_workspace }} exists"
       tags: [jenkins-agent]
 
     - name: Check JAVA_HOME in jenkins-agent bashrc
       ansible.builtin.command: grep JAVA_HOME {{ jenkins_agent_home }}/.bashrc
+      become: true
       register: java_home_check
       changed_when: false
       failed_when: java_home_check.rc != 0
@@ -115,8 +110,7 @@
           Agent {{ inventory_hostname }} verification complete:
           Java={{ java_version.stderr_lines[0] }},
           Docker={{ docker_version.stdout }},
-          User={{ agent_user.stdout }},
-          Workspace={{ workspace_dir.stat.exists }}
+          User={{ agent_user.stdout }}
 
 - name: Verify Windows Jenkins agent
   hosts: windows
