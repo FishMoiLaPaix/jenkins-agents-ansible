@@ -24,7 +24,7 @@ sources:
     transformers:
       - trimprefix: "v"
       - replacers:
-          "\.windows\.\d+$": ""
+          '\\.windows\\.\\d+$': ''
 
 targets:
   windows-git-version:
