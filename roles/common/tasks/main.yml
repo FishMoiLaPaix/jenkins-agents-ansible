@@ -39,7 +39,7 @@
 
 - name: Set Python 3 minor version fact
   ansible.builtin.set_fact:
-    python3_minor: "{{ python3_version_output.stdout | regex_search('Python (3\\.\\d+)', '\\1') | first }}"
+    python3_minor: "{{ python3_version_output.stdout | regex_search('Python (3\\.\\d+)', '\\1') }}"
   when: ansible_os_family == "Debian"
   tags:
     - common

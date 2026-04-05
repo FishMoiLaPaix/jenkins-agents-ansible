@@ -84,14 +84,14 @@
 
     - name: Check Go version
       ansible.builtin.command: go version
-      register: go_version
+      register: go_version_cmd
       changed_when: false
-      failed_when: "'1.22' not in go_version.stdout"
+      failed_when: "go_version not in go_version_cmd.stdout"
       tags: [golang]
 
     - name: Display Go version
       ansible.builtin.debug:
-        msg: "{{ go_version.stdout }}"
+        msg: "{{ go_version_cmd.stdout }}"
       tags: [golang]
 
     - name: Check golangci-lint version
@@ -146,7 +146,7 @@
           Agent {{ inventory_hostname }} verification complete:
           Java={{ java_version.stderr_lines[0] }},
           Docker={{ docker_version.stdout }},
-          Go={{ go_version.stdout }},
+          Go={{ go_version_cmd.stdout }},
           golangci-lint={{ golangci_lint_version.stdout }},
           User={{ agent_user.stdout }}
 
