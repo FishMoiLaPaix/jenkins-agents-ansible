@@ -1,0 +1,43 @@
+---
+name: "Update Node.js LTS version"
+
+scms:
+  default:
+    kind: github
+    spec:
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      branch: "{{ .github.branch }}"
+      user: updatecli
+
+sources:
+  nodejs:
+    name: "Get latest Node.js 24.x LTS release"
+    kind: githubrelease
+    spec:
+      owner: nodejs
+      repository: node
+      versionfilter:
+        kind: semver
+        pattern: "~24"
+    transformers:
+      - trimprefix: "v"
+
+targets:
+  windows-nodejs-full-version:
+    name: "Update Node.js full version in Windows group_vars"
+    kind: yaml
+    scmid: default
+    sourceid: nodejs
+    spec:
+      file: inventory/group_vars/windows.yml
+      key: "$.nodejs_full_version"
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    spec:
+      title: 'chore: update Node.js LTS to {{ source "nodejs" }}'
+      labels:
+        - dependencies

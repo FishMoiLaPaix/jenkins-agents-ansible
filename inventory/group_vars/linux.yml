@@ -2,6 +2,7 @@
 
 # Java
 java_major_version: "21"
+java_version: "21.0.10+7"
 java_package: "temurin-21-jdk"
 java_home: "/usr/lib/jvm/temurin-21-jdk-amd64"
 
