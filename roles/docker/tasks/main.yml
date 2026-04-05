@@ -1,0 +1,97 @@
+---
+# Docker installation and verification
+
+# --- Linux ---
+
+- name: Check if Docker is already installed
+  ansible.builtin.command: docker --version
+  register: docker_installed
+  changed_when: false
+  failed_when: false
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+
+- name: Add Docker GPG key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /usr/share/keyrings/docker.asc
+    mode: "0644"
+  when:
+    - ansible_os_family == "Debian"
+    - docker_installed.rc != 0
+    - not (docker_already_installed | default(false))
+  tags:
+    - docker
+    - packages
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    filename: docker
+    state: present
+  when:
+    - ansible_os_family == "Debian"
+    - docker_installed.rc != 0
+    - not (docker_already_installed | default(false))
+  tags:
+    - docker
+    - packages
+
+- name: Install Docker packages
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+  when:
+    - ansible_os_family == "Debian"
+    - docker_installed.rc != 0
+    - not (docker_already_installed | default(false))
+  tags:
+    - docker
+    - packages
+
+- name: Ensure Docker service is started and enabled
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+
+- name: Add users to docker group
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_users | default([]) }}"
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+    - user
+
+# --- Windows ---
+
+- name: Verify Docker Desktop on Windows
+  ansible.windows.win_command: docker --version
+  register: windows_docker_version
+  changed_when: false
+  failed_when: false
+  when: ansible_os_family == "Windows"
+  tags:
+    - docker
+    - windows
+
+- name: Display Docker version on Windows
+  ansible.builtin.debug:
+    msg: "Docker version: {{ windows_docker_version.stdout | default('NOT INSTALLED') }}"
+  when: ansible_os_family == "Windows"
+  tags:
+    - docker
+    - windows

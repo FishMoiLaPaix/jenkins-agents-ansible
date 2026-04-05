@@ -1,0 +1,36 @@
+---
+# Common setup tasks for all agents
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+  tags:
+    - common
+    - packages
+
+- name: Install essential packages
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - sudo
+      - unzip
+      - wget
+    state: present
+  when: ansible_os_family == "Debian"
+  tags:
+    - common
+    - packages
+
+- name: Set timezone
+  ansible.builtin.timezone:
+    name: Europe/Paris
+  when: ansible_os_family == "Debian"
+  tags:
+    - common
+    - timezone

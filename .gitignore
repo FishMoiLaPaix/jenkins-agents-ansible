@@ -1,0 +1,27 @@
+# Ansible
+*.retry
+inventory/host_vars/*/vault.yml
+
+# Secrets
+.env
+*.credentials.json
+*.pem
+*.key
+!roles/*/files/*.pub
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

@@ -1,0 +1,8 @@
+---
+# Main playbook - setup all Jenkins agents
+
+- name: Configure Linux Jenkins agents
+  import_playbook: linux-agents.yml
+
+- name: Configure Windows Jenkins agent
+  import_playbook: windows-agent.yml

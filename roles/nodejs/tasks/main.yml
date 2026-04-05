@@ -1,0 +1,32 @@
+---
+# Node.js installation (Windows agents only)
+
+- name: Install Node.js on Windows
+  chocolatey.chocolatey.win_chocolatey:
+    name: "nodejs-lts"
+    version: "{{ nodejs_version }}"
+    state: present
+  when: ansible_os_family == "Windows"
+  tags:
+    - nodejs
+    - windows
+
+- name: Install Python on Windows
+  chocolatey.chocolatey.win_chocolatey:
+    name: python3
+    version: "{{ python_version }}"
+    state: present
+  when: ansible_os_family == "Windows"
+  tags:
+    - python
+    - windows
+
+- name: Install Git on Windows
+  chocolatey.chocolatey.win_chocolatey:
+    name: git
+    version: "{{ git_version }}"
+    state: present
+  when: ansible_os_family == "Windows"
+  tags:
+    - git
+    - windows

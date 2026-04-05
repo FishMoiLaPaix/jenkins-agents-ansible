@@ -1,0 +1,16 @@
+# Common variables for Linux Jenkins agents
+
+# Java
+java_major_version: "21"
+java_package: "temurin-21-jdk"
+java_home: "/usr/lib/jvm/temurin-21-jdk-amd64"
+
+# Jenkins agent
+jenkins_agent_user: "jenkins-agent"
+jenkins_agent_group: "jenkins-agent"
+jenkins_agent_home: "/home/jenkins-agent"
+jenkins_agent_workspace: "/home/jenkins-agent/workspace"
+
+# Docker
+docker_users:
+  - "jenkins-agent"

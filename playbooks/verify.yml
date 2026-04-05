@@ -1,0 +1,204 @@
+---
+# Verify all Jenkins agents are properly configured
+
+- name: Verify Linux Jenkins agents
+  hosts: linux
+  become: true
+  gather_facts: true
+  tags: [verify]
+
+  tasks:
+    - name: Check Java version
+      ansible.builtin.command: java -version
+      register: java_version
+      changed_when: false
+      failed_when: "'21' not in java_version.stderr"
+      tags: [java]
+
+    - name: Display Java version
+      ansible.builtin.debug:
+        msg: "{{ java_version.stderr_lines[0] }}"
+      tags: [java]
+
+    - name: Check Docker version
+      ansible.builtin.command: docker --version
+      register: docker_version
+      changed_when: false
+      tags: [docker]
+
+    - name: Display Docker version
+      ansible.builtin.debug:
+        msg: "{{ docker_version.stdout }}"
+      tags: [docker]
+
+    - name: Check Docker service is running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+      check_mode: true
+      register: docker_service
+      tags: [docker]
+
+    - name: Verify Docker service status
+      ansible.builtin.assert:
+        that:
+          - docker_service is not changed
+        fail_msg: "Docker service is not running"
+        success_msg: "Docker service is running"
+      tags: [docker]
+
+    - name: Check jenkins-agent user exists
+      ansible.builtin.command: id {{ jenkins_agent_user }}
+      register: agent_user
+      changed_when: false
+      tags: [jenkins-agent]
+
+    - name: Display jenkins-agent user info
+      ansible.builtin.debug:
+        msg: "{{ agent_user.stdout }}"
+      tags: [jenkins-agent]
+
+    - name: Check jenkins-agent is in docker group
+      ansible.builtin.command: groups {{ jenkins_agent_user }}
+      register: agent_groups
+      changed_when: false
+      failed_when: "'docker' not in agent_groups.stdout"
+      tags: [jenkins-agent, docker]
+
+    - name: Check workspace directory exists
+      ansible.builtin.stat:
+        path: "{{ jenkins_agent_workspace }}"
+      register: workspace_dir
+      tags: [jenkins-agent]
+
+    - name: Verify workspace directory
+      ansible.builtin.assert:
+        that:
+          - workspace_dir.stat.exists
+          - workspace_dir.stat.isdir
+        fail_msg: "Workspace directory {{ jenkins_agent_workspace }} does not exist"
+        success_msg: "Workspace directory {{ jenkins_agent_workspace }} exists"
+      tags: [jenkins-agent]
+
+    - name: Check JAVA_HOME in jenkins-agent bashrc
+      ansible.builtin.command: grep JAVA_HOME {{ jenkins_agent_home }}/.bashrc
+      register: java_home_check
+      changed_when: false
+      failed_when: java_home_check.rc != 0
+      tags: [java, jenkins-agent]
+
+    - name: Check disk space
+      ansible.builtin.command: df -h /
+      register: disk_space
+      changed_when: false
+      tags: [system]
+
+    - name: Display disk space
+      ansible.builtin.debug:
+        msg: "{{ disk_space.stdout_lines }}"
+      tags: [system]
+
+    - name: Check memory
+      ansible.builtin.command: free -h
+      register: memory_info
+      changed_when: false
+      tags: [system]
+
+    - name: Display memory info
+      ansible.builtin.debug:
+        msg: "{{ memory_info.stdout_lines }}"
+      tags: [system]
+
+    - name: Summary
+      ansible.builtin.debug:
+        msg: >
+          Agent {{ inventory_hostname }} verification complete:
+          Java={{ java_version.stderr_lines[0] }},
+          Docker={{ docker_version.stdout }},
+          User={{ agent_user.stdout }},
+          Workspace={{ workspace_dir.stat.exists }}
+
+- name: Verify Windows Jenkins agent
+  hosts: windows
+  gather_facts: true
+  tags: [verify, windows]
+
+  tasks:
+    - name: Check Java version
+      ansible.windows.win_command: java -version
+      register: win_java_version
+      changed_when: false
+      tags: [java]
+
+    - name: Display Java version
+      ansible.builtin.debug:
+        msg: "{{ win_java_version.stderr_lines[0] | default('Java not found') }}"
+      tags: [java]
+
+    - name: Check Docker version
+      ansible.windows.win_command: docker --version
+      register: win_docker_version
+      changed_when: false
+      tags: [docker]
+
+    - name: Display Docker version
+      ansible.builtin.debug:
+        msg: "{{ win_docker_version.stdout | default('Docker not found') }}"
+      tags: [docker]
+
+    - name: Check Node.js version
+      ansible.windows.win_command: node --version
+      register: win_node_version
+      changed_when: false
+      tags: [nodejs]
+
+    - name: Display Node.js version
+      ansible.builtin.debug:
+        msg: "{{ win_node_version.stdout | default('Node.js not found') }}"
+      tags: [nodejs]
+
+    - name: Check Python version
+      ansible.windows.win_command: python --version
+      register: win_python_version
+      changed_when: false
+      tags: [python]
+
+    - name: Display Python version
+      ansible.builtin.debug:
+        msg: "{{ win_python_version.stdout | default('Python not found') }}"
+      tags: [python]
+
+    - name: Check Git version
+      ansible.windows.win_command: git --version
+      register: win_git_version
+      changed_when: false
+      tags: [git]
+
+    - name: Display Git version
+      ansible.builtin.debug:
+        msg: "{{ win_git_version.stdout | default('Git not found') }}"
+      tags: [git]
+
+    - name: Check workspace directory exists
+      ansible.windows.win_stat:
+        path: "{{ jenkins_agent_workspace }}"
+      register: win_workspace_dir
+      tags: [jenkins-agent]
+
+    - name: Verify workspace directory
+      ansible.builtin.assert:
+        that:
+          - win_workspace_dir.stat.exists
+        fail_msg: "Workspace directory {{ jenkins_agent_workspace }} does not exist"
+        success_msg: "Workspace directory {{ jenkins_agent_workspace }} exists"
+      tags: [jenkins-agent]
+
+    - name: Summary
+      ansible.builtin.debug:
+        msg: >
+          Agent {{ inventory_hostname }} verification complete:
+          Java={{ win_java_version.stderr_lines[0] | default('N/A') }},
+          Docker={{ win_docker_version.stdout | default('N/A') }},
+          Node={{ win_node_version.stdout | default('N/A') }},
+          Python={{ win_python_version.stdout | default('N/A') }},
+          Git={{ win_git_version.stdout | default('N/A') }}

@@ -1,0 +1,97 @@
+---
+# Jenkins agent user and workspace setup
+
+- name: Create jenkins-agent group
+  ansible.builtin.group:
+    name: "{{ jenkins_agent_group }}"
+    state: present
+  when: ansible_os_family == "Debian"
+  tags:
+    - jenkins-agent
+    - user
+
+- name: Create jenkins-agent user
+  ansible.builtin.user:
+    name: "{{ jenkins_agent_user }}"
+    group: "{{ jenkins_agent_group }}"
+    home: "{{ jenkins_agent_home }}"
+    shell: /bin/bash
+    create_home: true
+    state: present
+  when: ansible_os_family == "Debian"
+  tags:
+    - jenkins-agent
+    - user
+
+- name: Add jenkins-agent to docker group
+  ansible.builtin.user:
+    name: "{{ jenkins_agent_user }}"
+    groups: docker
+    append: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - jenkins-agent
+    - docker
+
+- name: Create workspace directory
+  ansible.builtin.file:
+    path: "{{ jenkins_agent_workspace }}"
+    state: directory
+    owner: "{{ jenkins_agent_user }}"
+    group: "{{ jenkins_agent_group }}"
+    mode: "0755"
+  when: ansible_os_family == "Debian"
+  tags:
+    - jenkins-agent
+    - workspace
+
+- name: Create .ssh directory
+  ansible.builtin.file:
+    path: "{{ jenkins_agent_home }}/.ssh"
+    state: directory
+    owner: "{{ jenkins_agent_user }}"
+    group: "{{ jenkins_agent_group }}"
+    mode: "0700"
+  when: ansible_os_family == "Debian"
+  tags:
+    - jenkins-agent
+    - ssh
+
+- name: Set JAVA_HOME in jenkins-agent profile
+  ansible.builtin.lineinfile:
+    path: "{{ jenkins_agent_home }}/.bashrc"
+    regexp: '^export JAVA_HOME='
+    line: "export JAVA_HOME={{ java_home }}"
+    create: true
+    owner: "{{ jenkins_agent_user }}"
+    group: "{{ jenkins_agent_group }}"
+    mode: "0644"
+  when: ansible_os_family == "Debian"
+  tags:
+    - jenkins-agent
+    - java
+
+- name: Add JAVA_HOME/bin to PATH in jenkins-agent profile
+  ansible.builtin.lineinfile:
+    path: "{{ jenkins_agent_home }}/.bashrc"
+    regexp: '^export PATH=.*JAVA_HOME'
+    line: 'export PATH="${JAVA_HOME}/bin:${PATH}"'
+    create: true
+    owner: "{{ jenkins_agent_user }}"
+    group: "{{ jenkins_agent_group }}"
+    mode: "0644"
+  when: ansible_os_family == "Debian"
+  tags:
+    - jenkins-agent
+    - java
+
+# Windows agent workspace
+- name: Create Windows agent workspace directory
+  ansible.windows.win_file:
+    path: "{{ jenkins_agent_workspace }}"
+    state: directory
+  when: ansible_os_family == "Windows"
+  tags:
+    - jenkins-agent
+    - workspace
+    - windows

@@ -1,0 +1,54 @@
+---
+# Java 21 (Temurin/Adoptium) installation
+
+# --- Linux ---
+
+- name: Add Adoptium GPG key
+  ansible.builtin.get_url:
+    url: https://packages.adoptium.net/artifactory/api/gpg/key/public
+    dest: /usr/share/keyrings/adoptium.asc
+    mode: "0644"
+  when: ansible_os_family == "Debian"
+  tags:
+    - java
+    - packages
+
+- name: Add Adoptium repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb {{ ansible_distribution_release }} main"
+    filename: adoptium
+    state: present
+  when: ansible_os_family == "Debian"
+  tags:
+    - java
+    - packages
+
+- name: Install Temurin JDK 21
+  ansible.builtin.apt:
+    name: "{{ java_package }}"
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - java
+    - packages
+
+- name: Set default Java to Temurin 21
+  community.general.alternatives:
+    name: java
+    path: "{{ java_home }}/bin/java"
+  when: ansible_os_family == "Debian"
+  failed_when: false
+  tags:
+    - java
+
+# --- Windows ---
+
+- name: Install Temurin JDK 21 on Windows
+  chocolatey.chocolatey.win_chocolatey:
+    name: temurin21
+    state: present
+  when: ansible_os_family == "Windows"
+  tags:
+    - java
+    - windows

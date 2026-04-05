@@ -1,0 +1,16 @@
+---
+# Linux Jenkins agents setup
+
+- name: Configure Linux Jenkins agents
+  hosts: linux
+  become: true
+
+  roles:
+    - role: common
+      tags: [common]
+    - role: java
+      tags: [java]
+    - role: docker
+      tags: [docker]
+    - role: jenkins-agent
+      tags: [jenkins-agent]
