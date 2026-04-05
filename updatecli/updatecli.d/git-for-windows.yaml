@@ -26,14 +26,14 @@ sources:
         replace: ""
 
 targets:
-  windows-git-full-version:
-    name: "Update Git full version in Windows group_vars"
+  windows-git-version:
+    name: "Update Git version in Windows group_vars"
     kind: yaml
     scmid: default
     sourceid: git
     spec:
       file: inventory/group_vars/windows.yml
-      key: "$.git_full_version"
+      key: "$.git_version"
 
 actions:
   default:

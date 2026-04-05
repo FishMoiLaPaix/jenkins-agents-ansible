@@ -24,14 +24,14 @@ sources:
       - trimprefix: "v"
 
 targets:
-  windows-python-full-version:
-    name: "Update Python full version in Windows group_vars"
+  windows-python-version:
+    name: "Update Python version in Windows group_vars"
     kind: yaml
     scmid: default
     sourceid: python
     spec:
       file: inventory/group_vars/windows.yml
-      key: "$.python_full_version"
+      key: "$.python_version"
 
 actions:
   default:

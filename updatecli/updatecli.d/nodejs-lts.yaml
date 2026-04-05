@@ -24,14 +24,14 @@ sources:
       - trimprefix: "v"
 
 targets:
-  windows-nodejs-full-version:
-    name: "Update Node.js full version in Windows group_vars"
+  windows-nodejs-version:
+    name: "Update Node.js version in Windows group_vars"
     kind: yaml
     scmid: default
     sourceid: nodejs
     spec:
       file: inventory/group_vars/windows.yml
-      key: "$.nodejs_full_version"
+      key: "$.nodejs_version"
 
 actions:
   default:
