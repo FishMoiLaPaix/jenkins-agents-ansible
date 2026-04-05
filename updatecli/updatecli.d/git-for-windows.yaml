@@ -20,11 +20,16 @@ sources:
       owner: git-for-windows
       repository: git
       versionfilter:
-        kind: latest
+        kind: regex
+        pattern: 'v\d+\.\d+\.\d+\.windows\.\d+$'
+      typefilter:
+        latest: true
     transformers:
       - trimprefix: "v"
-      - replacers:
-          '\\.windows\\.\\d+$': ''
+      - trimsuffix: ".windows.1"
+      - trimsuffix: ".windows.2"
+      - trimsuffix: ".windows.3"
+      - trimsuffix: ".windows.4"
 
 targets:
   windows-git-version:
