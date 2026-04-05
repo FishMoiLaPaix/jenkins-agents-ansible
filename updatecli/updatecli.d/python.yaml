@@ -9,12 +9,14 @@ scms:
       repository: "{{ .github.repository }}"
       branch: "{{ .github.branch }}"
       user: updatecli
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
 
 sources:
   python:
     name: "Get latest Python 3.13.x release"
     kind: githubtag
     spec:
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       owner: python
       repository: cpython
       versionfilter:

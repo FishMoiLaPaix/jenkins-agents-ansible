@@ -9,12 +9,14 @@ scms:
       repository: "{{ .github.repository }}"
       branch: "{{ .github.branch }}"
       user: updatecli
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
 
 sources:
   nodejs:
     name: "Get latest Node.js 24.x LTS release"
     kind: githubrelease
     spec:
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       owner: nodejs
       repository: node
       versionfilter:

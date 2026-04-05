@@ -9,12 +9,14 @@ scms:
       repository: "{{ .github.repository }}"
       branch: "{{ .github.branch }}"
       user: updatecli
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
 
 sources:
   git:
     name: "Get latest Git for Windows release"
     kind: githubrelease
     spec:
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       owner: git-for-windows
       repository: git
       versionfilter:
