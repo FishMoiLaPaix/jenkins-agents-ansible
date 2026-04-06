@@ -35,6 +35,19 @@ targets:
       file: inventory/group_vars/windows.yml
       key: "$.nodejs_version"
 
+  linux-nodejs-major-version:
+    name: "Update Node.js major version in Linux group_vars"
+    kind: yaml
+    scmid: default
+    sourceid: nodejs
+    transformers:
+      - findsubmatch:
+          pattern: '^(\d+)\.'
+          captureindex: 1
+    spec:
+      file: inventory/group_vars/linux.yml
+      key: "$.nodejs_major_version"
+
 actions:
   default:
     kind: github/pullrequest
