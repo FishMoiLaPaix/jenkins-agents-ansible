@@ -57,7 +57,7 @@
     - python
 
 - name: Set timezone
-  ansible.builtin.timezone:
+  community.general.timezone:
     name: Europe/Paris
   when: ansible_os_family == "Debian"
   tags:
