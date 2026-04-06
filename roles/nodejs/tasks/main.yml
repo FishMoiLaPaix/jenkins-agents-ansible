@@ -25,7 +25,7 @@
 - name: Install Node.js on Linux
   ansible.builtin.apt:
     name: nodejs
-    state: latest
+    state: present
     update_cache: true
   when: ansible_os_family == "Debian"
   tags:
