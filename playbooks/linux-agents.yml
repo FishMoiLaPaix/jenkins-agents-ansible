@@ -16,5 +16,7 @@
       tags: [golang]
     - role: golangci-lint
       tags: [golangci-lint]
+    - role: nodejs
+      tags: [nodejs]
     - role: jenkins-agent
       tags: [jenkins-agent]

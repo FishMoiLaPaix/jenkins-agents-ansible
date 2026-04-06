@@ -11,6 +11,9 @@ jenkins_agent_group: "jenkins-agent"
 jenkins_agent_home: "/home/jenkins-agent"
 jenkins_agent_workspace: "/home/jenkins-agent/workspace"
 
+# Node.js
+nodejs_major_version: "22"
+
 # Go
 go_version: "1.22.2"
 

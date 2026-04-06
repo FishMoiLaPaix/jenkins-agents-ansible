@@ -118,6 +118,23 @@
         msg: "python3-venv is available"
       tags: [python]
 
+    - name: Check Node.js version
+      ansible.builtin.command: node --version
+      register: node_version
+      changed_when: false
+      tags: [nodejs]
+
+    - name: Display Node.js version
+      ansible.builtin.debug:
+        msg: "{{ node_version.stdout }}"
+      tags: [nodejs]
+
+    - name: Verify Node.js minimum version (>= 22.22.0)
+      ansible.builtin.fail:
+        msg: "Node.js {{ node_version.stdout }} is below minimum 22.22.0"
+      when: node_version.stdout | regex_replace('^v', '') is version('22.22.0', '<')
+      tags: [nodejs]
+
     - name: Check disk space
       ansible.builtin.command: df -h /
       register: disk_space
@@ -148,6 +165,7 @@
           Docker={{ docker_version.stdout }},
           Go={{ go_version_cmd.stdout }},
           golangci-lint={{ golangci_lint_version.stdout }},
+          Node={{ node_version.stdout | default('N/A') }},
           User={{ agent_user.stdout }}
 
 - name: Verify Windows Jenkins agent
