@@ -129,6 +129,12 @@
         msg: "{{ node_version.stdout }}"
       tags: [nodejs]
 
+    - name: Verify Node.js minimum version (>= 22.22.0)
+      ansible.builtin.fail:
+        msg: "Node.js {{ node_version.stdout }} is below minimum 22.22.0"
+      when: node_version.stdout | regex_replace('^v', '') is version('22.22.0', '<')
+      tags: [nodejs]
+
     - name: Check disk space
       ansible.builtin.command: df -h /
       register: disk_space
