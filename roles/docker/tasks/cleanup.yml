@@ -1,0 +1,83 @@
+---
+# Docker / BuildKit cache cleanup via cron
+#
+# Rationale: the BuildKit cache on Jenkins Docker agents can grow to 100GB+ in
+# a few weeks of CI activity, eventually crashing the BuildKit daemon under
+# load ("frontend grpc server closed unexpectedly"). Apply a scheduled prune
+# to keep it bounded.
+#
+# Target: Linux agents only (Windows agent uses Docker Desktop with its own
+# storage manager and is excluded).
+
+- name: Prune BuildKit cache twice a week (Sun + Wed at 03:15)
+  ansible.builtin.cron:
+    name: "docker-buildx-prune"
+    user: root
+    weekday: "0,3"
+    hour: "3"
+    minute: "15"
+    job: "docker builder prune -a --force --filter='until=168h' >> /var/log/docker-cleanup.log 2>&1"
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+    - cleanup
+
+- name: Prune dangling images weekly (Sun 03:45)
+  ansible.builtin.cron:
+    name: "docker-image-prune"
+    user: root
+    weekday: "0"
+    hour: "3"
+    minute: "45"
+    job: "docker image prune -a --force --filter='until=168h' >> /var/log/docker-cleanup.log 2>&1"
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+    - cleanup
+
+- name: Prune stopped containers weekly (Sun 04:00)
+  ansible.builtin.cron:
+    name: "docker-container-prune"
+    user: root
+    weekday: "0"
+    hour: "4"
+    minute: "0"
+    job: "docker container prune --force --filter='until=168h' >> /var/log/docker-cleanup.log 2>&1"
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+    - cleanup
+
+- name: Ensure cleanup log file exists with safe permissions
+  ansible.builtin.file:
+    path: /var/log/docker-cleanup.log
+    state: touch
+    owner: root
+    group: root
+    mode: "0644"
+    modification_time: preserve
+    access_time: preserve
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+    - cleanup
+
+- name: Install logrotate config for docker-cleanup log
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/docker-cleanup
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      /var/log/docker-cleanup.log {
+          weekly
+          rotate 8
+          compress
+          missingok
+          notifempty
+          create 0644 root root
+      }
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+    - cleanup

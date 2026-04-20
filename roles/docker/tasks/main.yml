@@ -76,6 +76,13 @@
     - docker
     - user
 
+- name: Include Docker cleanup cron tasks
+  ansible.builtin.import_tasks: cleanup.yml
+  when: ansible_os_family == "Debian"
+  tags:
+    - docker
+    - cleanup
+
 # --- Windows ---
 
 - name: Verify Docker Desktop on Windows
