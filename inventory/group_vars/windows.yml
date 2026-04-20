@@ -10,5 +10,5 @@ jenkins_agent_workspace: 'D:\Jenkins\agent'
 # Tools
 nodejs_version: 24.14.1
 python_version: "3.13.9"
-git_version: "2.53.0"
+git_version: 2.53.0
 chocolatey_version: "2.7"
